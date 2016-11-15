@@ -10,6 +10,7 @@ form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 
 .title {text-align:center; font-size: 50px; justify-content: space-between; font-family: courier; color: white;}
 .navbutton { float: right; color: white; font-size: 20px; 
 	font-family: courier; text-align: right; padding: 10px 12px; text-decoration: none; }
+
 /*.sideBar {width:200px; }*/
 #profile_modal {width:100%; height: 100%; position: fixed; top:0; background: #eee; text-align: center; font-size: 30px; font-family:courier;}
 #modal_header{}
@@ -55,3 +56,240 @@ form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 
     background-color: rgba(231, 231, 231, 1);
 }*/
 /*className="navbar navbar-default navbar-static-top"*/
+
+
+
+
+
+
+
+
+/*For RightSideView using react-side-bar module*/
+html, body {
+  font-family: 'Roboto', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+select {
+  -webkit-appearance: menulist;
+  appearance: menulist;
+}
+
+section {
+  background-color: rgba(72, 81, 96, 0.4);
+  border-radius: 2px;
+  border: 1px solid #485160;
+  box-shadow: inset 0px 0px 4px -2px #2A3139;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+label {
+  color: white;
+  font-size: 14px;
+  font-weight: 300;
+  vertical-align: middle;
+}
+
+input[type='checkbox'] {
+  margin: 0 5px;
+}
+
+input[type='text'],
+input[type='number'] {
+  padding: 2px 4px;
+}
+
+.nav-icon {
+  -moz-transform: rotate(0deg);
+  -moz-transition: .5s ease-in-out;
+  -o-transform: rotate(0deg);
+  -o-transition: .5s ease-in-out;
+  -webkit-transform: rotate(0deg);
+  -webkit-transition: .5s ease-in-out;
+  cursor: pointer;
+  height: 50px;
+  margin: 0 auto;
+  position: relative;
+  top: 16px;
+  transform: rotate(0deg);
+  transition: .5s ease-in-out;
+  width: 28px;
+}
+
+.nav-icon span {
+  -moz-transform: rotate(0deg);
+  -moz-transition: .25s ease-in-out;
+  -o-transform: rotate(0deg);
+  -o-transition: .25s ease-in-out;
+  -webkit-transform: rotate(0deg);
+  -webkit-transition: .25s ease-in-out;
+  background: white;
+  display: block;
+  height: 2px;
+  left: 0;
+  opacity: 1;
+  position: absolute;
+  transform: rotate(0deg);
+  transition: .25s ease-in-out;
+  width: 100%;
+}
+
+.nav-icon span:nth-child(1) {
+  top: 0px;
+}
+
+.nav-icon span:nth-child(2), .nav-icon span:nth-child(3) {
+  top: 8px;
+}
+
+.nav-icon span:nth-child(4) {
+  top: 16px;
+}
+
+.nav-icon.open span:nth-child(1) {
+  left: 50%;
+  top: 8px;
+  width: 0%;
+}
+
+.nav-icon.open span:nth-child(2) {
+  -moz-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+
+.nav-icon.open span:nth-child(3) {
+  -moz-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+
+.nav-icon.open span:nth-child(4) {
+  left: 50%;
+  top: 16px;
+  width: 0%;
+}
+
+.title {
+  color: white;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.explain {
+  color: white;
+  font-size: 14px;
+  font-weight: 300;
+  padding: 5px 0;
+}
+
+.option-wrapper {
+  margin: 5px 0 0 0;
+}
+
+.option-wrapper span {
+  color: white;
+  font-size: 12px;
+  font-weight: 300;
+  margin: 0 5px;
+}
+
+#example {
+  height: 100vh;
+}
+
+#example > div {
+  height: 100vh;
+}
+
+.side-bar-content, .side-bar-panel, .side-bar {
+  height: 100vh;
+}
+
+.topBar {
+  background-color: #FF756D;
+  color: white;
+  display: flex;
+  height: 50px;
+}
+
+.topBar > div {
+  align-self: center;
+  flex: 1 1 0;
+  text-align: center;
+}
+
+.topBar .left, .topBar .right {
+  max-width: 50px;
+}
+
+.topBar .center {
+  text-transform: uppercase;
+}
+
+.side {
+  background-color: #DADFE3;
+  height: 100vh;
+  padding: 10px;
+}
+
+.main {
+  background-color: #3E4358;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.main section:last-child {
+  margin-bottom: 70px;
+}
+
+.duration-option input,
+.size-option input,
+.touchSize-option input {
+  width: 50px;
+}
+
+.fx-option input {
+  width: 250px;
+}
+
+
+
+
+
+
+
+
+
+
+/*From the simple guy*/
+/*
+      .transition (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; -webkit-transition: @value; -moz-transition: @value; -ms-transition: @value; -o-transition: @value; transition: @value; }
+      .transform (@value1,@value2:X,...) { @value: ~`"@{arguments}".replace(/[\[\]]|\,\sX/g, '')`; transform:@value; -ms-transform:@value; -webkit-transform:@value; -o-transform:@value; -moz-transform:@value; }
+            .border-box { box-sizing:border-box; -moz-box-sizing:border-box; }
+      
+      body { font-family:Arial; font-size:14px; overflow-x:hidden; }
+      body>div>span, body>div>h1 { float:left; width:100%; margin:0; padding:0; margin-bottom:10px; }
+      body>div>button { float:left; margin-right:10px; }
+      span { color:#888888; }
+      button { width:auto; padding:7px 22px; }
+            
+            .menu { display:block;
+                @menu-width:250px;
+                >div { position:absolute; z-index:2; top:0;  width:@menu-width; height:100%; .border-box; .transition(-webkit-transform ease 250ms); .transition(transform ease 250ms);
+                    
+                    &.right {right:@menu-width*-1; }
+                    &.visible.right { .transform(translate3d(@menu-width*-1, 0, 0)); }
+                    &.main-menu { background:#0000FF;}
+                    &.deeper-menu { background:#EE82EE;}
+                    
+                    >.menu-item { float:left; width:100%; margin:0; padding:10px 15px; border-bottom:solid 1px #555; cursor:pointer; .border-box;
+            >span { float:left; color:inherit; }
+                    }
+                }
+            }*/

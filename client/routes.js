@@ -8,6 +8,7 @@ import Login from './src/login.js'
 import Logout from './src/logout.js'
 import SignUp from './src/signup.js'
 import Profile from './src/signup.js'
+import App from './src/RightSideBarForMembers'
 
 function loggedIn() {
   return !!localStorage.id_token;

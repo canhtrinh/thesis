@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import SideBarEntryChannel from './SideBarEntry-Channel';
 import { connect } from 'react-redux';
 
-const SideBar = ( {rooms, currentRoom, theSocket} ) => {
+const LeftSideBar = ( {rooms, currentRoom, theSocket} ) => {
 
   return (
     <div>
@@ -35,4 +35,4 @@ const mapStateToProps = (state, ownProps) => {
   }
 };
 
-export default connect(mapStateToProps)(SideBar);
+export default connect(mapStateToProps)(LeftSideBar);
