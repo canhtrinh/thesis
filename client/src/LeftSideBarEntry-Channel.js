@@ -14,7 +14,9 @@ const LeftSideBarEntryChannel = ({ dispatch, room, currentUser, currentRoom, the
       // console.log("this is my current Room",currentRoom);
     }
   }>
-    * { (room.channelName === currentUser) ? room.aliasName : room. channelName }
+    * { (room.aliasName === "Channel_NotDM") ? room.channelName : 
+        ((room.user1username === currentUser) ? room.user2username : room.user1username) 
+      }
   </li>
 
 );

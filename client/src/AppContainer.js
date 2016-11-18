@@ -105,7 +105,7 @@ class AppContainer extends React.Component {
             this.handleReceive(setCurrentUser,eachUser);
           }
         });
-        console.log("email email email???",this.props.currentUser.email);
+        // console.log("email email email???",this.props.currentUser.email);
         this.socket.emit("setMyEmailInSocket",{
           email: this.props.currentUser.email,
           username: this.props.currentUser.username

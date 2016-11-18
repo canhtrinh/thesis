@@ -4,7 +4,7 @@ import { dispatch, connect } from 'react-redux';
 import { addDMRoom } from '../actions/DMRoomActions';
 import { setCurrentRoom } from '../actions/CurrentRoomActions';
 
-const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser, theSocket }) => {
+const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser, currentRoom, theSocket }) => {
 
   const handleReceive = (cb,body) => {
     dispatch(cb(body));
@@ -23,31 +23,46 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
           msg: user.username + ', ' + currentUser.username +" wants to open a direct chat with you!"
         });
 
-        //set up a new direct message room
-        axios.post('/db/DMRooms',{ 
-          user1: currentUser.id, 
-          user2: user.id,
-          channelName: currentUser.username + user.username, //i.e. CanhJulia
-          aliasName: user.username + currentUser.username }) //i.e. JuliaCanh
-        .then((response) => {
-          console.log("room created in DB!", response);
-          let roomToAdd = {
-            id: response.data[0],
-            user1ID: currentUser.id,
-            user2ID: user.id,
-            channelName: currentUser.username + user.username,
-            aliasName: user.username + currentUser.username,
-            currentRoomToggle: true
+        //if DM room exists i.e. in the DB, set currentRoom to room with that person
+        let roomExists = false;
+        for(let i = 0; i<DMRooms.length; i++){
+          if(user.username === DMRooms[i].user1username || user.username === DMRooms[i].user2username){
+            handleReceive(setCurrentRoom,DMRooms[i]);
+            theSocket.emit('changeRoom', currentRoom);
+            roomExists = true;
+            return;
           }
-          //add room to Store
-          handleReceive(addDMRoom,roomToAdd);
+        }
+        //otherwise make a new room
+        if(!roomExists){
+            //set up a new direct message room
+            axios.post('/db/DMRooms',{ 
+              user1: currentUser.id, 
+              user2: user.id,
+              channelName: currentUser.username + user.username, //i.e. CanhJulia
+              aliasName: user.username + currentUser.username }) //i.e. JuliaCanh
+            .then((response) => {
+              console.log("room created in DB!", response);
+              let roomToAdd = {
+                id: response.data[0],
+                user1ID: currentUser.id,
+                user2ID: user.id,
+                user1username: currentUser.username,
+                user2username: user.username,
+                channelName: currentUser.username + user.username,
+                aliasName: user.username + currentUser.username,
+                currentRoomToggle: true
+              }
+              //add room to Store
+              handleReceive(addDMRoom,roomToAdd);
 
-          //change current room in Store and in the Socket
-          handleReceive(setCurrentRoom,roomToAdd);
-          theSocket.emit('changeRoom', currentRoom);
+              //change current room in Store and in the Socket
+              handleReceive(setCurrentRoom,roomToAdd);
+              theSocket.emit('changeRoom', currentRoom);
 
-        })
-        .catch((err) => console.error(err))
+            })
+            .catch((err) => console.error(err))          
+        }
 
       }
     }>
@@ -58,7 +73,7 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
 }
 
 const mapStateToProps = (state, ownProps) => {
-  // console.log("DM Rooms",state.allReducers.DMRoomReducer)
+  console.log("DM Rooms",state.allReducers.DMRoomReducer)
   return { 
     currentUser: state.allReducers.CurrentUserReducer,
     currentRoom: state.allReducers.CurrentRoomReducer,
@@ -68,3 +83,5 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 export default connect(mapStateToProps)(RightSideBarEntryUser);
+
+
