@@ -10,6 +10,15 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
     dispatch(cb(body));
   }
 
+  const getPeerToChangeRoom = (room) => {
+    //emits to socket and has it alert to that user that I want to chat
+    theSocket.emit("direct message",{
+      recipientEmail: user.email,
+      room: room,
+      msg: user.username + ', ' + currentUser.username +" wants to open a direct chat with you!"
+    });
+  }
+
   return (
     <li onClick={ 
       () => {
@@ -17,11 +26,12 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
 
         // console.log("clicked user",user)
 
-        //emits to socket and has it alert to that user that I want to chat
-        theSocket.emit("direct message",{
-          recipientEmail: user.email,
-          msg: user.username + ', ' + currentUser.username +" wants to open a direct chat with you!"
-        });
+        // //emits to socket and has it alert to that user that I want to chat
+        // theSocket.emit("direct message",{
+        //   recipientEmail: user.email,
+        //   // room: currentRoom.channelName,
+        //   msg: user.username + ', ' + currentUser.username +" wants to open a direct chat with you!"
+        // });
 
         //if DM room exists i.e. in the DB, set currentRoom to room with that person
         let roomExists = false;
@@ -29,6 +39,7 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
           if(user.username === DMRooms[i].user1username || user.username === DMRooms[i].user2username){
             handleReceive(setCurrentRoom,DMRooms[i]);
             theSocket.emit('changeRoom', currentRoom);
+            getPeerToChangeRoom(DMRooms[i]);
             roomExists = true;
             return;
           }
@@ -58,9 +69,10 @@ const RightSideBarEntryUser = ({ dispatch, DMRooms, user, allUsers, currentUser,
 
               //change current room in Store and in the Socket
               handleReceive(setCurrentRoom,roomToAdd);
-              theSocket.emit('changeRoom', currentRoom);
-
+              theSocket.emit('changeRoom', currentRoom.channelName);
+              // getPeerToChangeRoom();
             })
+            .then( () => getPeerToChangeRoom(currentRoom))
             .catch((err) => console.error(err))          
         }
 
