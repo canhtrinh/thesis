@@ -16,13 +16,15 @@ const LeftSideBarEntryChannel = ({ dispatch, room, currentUser, currentRoom, the
 
       onClick={ () => {
         room.unreadMessageCounter = 0;
-        dispatch(setCurrentRoom(room));
-        theSocket.emit('changeRoom', currentRoom)
+        handleReceive(setCurrentRoom,room);
+        console.log("room line 20 in LeftSideBarEntryChannel",room)
+        theSocket.emit('changeRoom', currentRoom.channelName)
       }
     }>
       * { (room.aliasName === "Channel_NotDM") ? room.channelName : 
           ((currentUser.username === room.user1username) ? room.user2username : room.user1username)
         }
+        {room.unreadMessageCounter}
 
         { room.unreadMessageCounter > 0 &&
         " - " + room.unreadMessageCounter

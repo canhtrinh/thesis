@@ -1,14 +1,14 @@
 import axios from 'axios';
 import React, { PropTypes } from 'react';
 import { dispatch, connect } from 'react-redux';
-import Sidebar from 'react-sidebar';
 import ReactDOM from 'react-dom';
+import SideBar from '../lib/SideBar-modified.js';
 import Nav from './nav.js';
 import PrimaryChatroom from './PrimaryChatroom.js';
 import LeftSideBar from './LeftSideBar.js';
 import RightSideBar from './RightSideBar.js';
 import { addMessageFromSocket, addMessageFromDB } from '../actions/ChatActions';
-import { addRoom, incrementUnreadMessageCounter } from '../actions/RoomActions';
+import { addRoom } from '../actions/RoomActions';
 import { addDMRoom } from '../actions/DMRoomActions';
 import { addUser, toggleOnlineUser, toggleOfflineUser, downloadOnlineUsers } from '../actions/UserActions';
 import { setCurrentUser } from '../actions/CurrentUserActions';
@@ -16,82 +16,28 @@ import { setCurrentRoom } from '../actions/CurrentRoomActions';
 
 class AppContainer extends React.Component {
 
-  constructor(props){
-    super(props)
+  constructor(props) {
+    super(props);
     this.socket = io('/Hack-Reactor-NameSpace');
     this.state = {
-      docked: false,
-      open: false,
-      transitions: true,
-      shadow: true,
-      pullRight: true
+      barOpened: false,
+      duration: 150,
+      mode: 'over',
+      side: 'right',
+      size: 256,
+      tolerance: 70
     }
-    // this.downloadAllChannels = this.downloadAllChannels.bind(this);
-    // this.downloadMyChannelsOnly = this.downloadMyChannelsOnly.bind(this)
-    this.toggleUserDock = this.toggleUserDock.bind(this)
+    this.downloadAllChannels = this.downloadAllChannels.bind(this);
   }
 
-  onSetOpen(open) {this.setState({open: open})}
-  menuButtonClick(ev) {
-    ev.preventDefault();
-    this.onSetOpen(!this.state.open);
-  }
-  toggleUserDock(ev){this.setState({ docked: !this.state.docked })}
+  toggleBar() { this.setState({ barOpened: !this.state.barOpened })}
+  onOpen() { this.setState({ barOpened: true })}
+  onClose() { this.setState({ barOpened: false })}
 
   componentDidMount() {
+    this.downloadAllChannels();
     this.downloadAllUsers();
     this.downloadAllDMRooms();
-    this.downloadChannels();
-    this.socket.on('chat message', 
-      incoming => {
-        console.log("CHAT MESSAGE", incoming)
-
-        //add message to ChatReducer
-        this.handleReceive(addMessageFromSocket,{
-          channelName: incoming.channelName,
-          channelID: incoming.channelID,
-          username: incoming.username,
-          text: incoming.text
-          // picture: incoming.picture
-        });
-
-        //increment unread messages only if user is not in that room
-        if(incoming.channelName !== this.props.currentRoom.channelName){
-          //code
-          console.log("incoming.channelName",incoming.channelName)
-          console.log("currentRoom.channelName",this.props.currentRoom.channelName)
-          this.handleReceive(incrementUnreadMessageCounter,incoming.channelName)
-        }
-      }
-    );
-
-    this.socket.on('disconnected', txt => this.handleReceive(addMessageFromSocket,{text: txt}) );
-    
-    this.socket.on('someoneJoin', txt => this.handleReceive(addMessageFromSocket,{text: txt}) );
-    
-    this.socket.on("direct message", incoming => {
-      // console.log("trying to get a room", incoming.room);
-      window.alert(incoming.msg)
-      this.socket.emit('changeRoom', incoming.room)
-      this.handleReceive(setCurrentRoom,incoming.room);
-    });
-    
-    this.socket.on('connect', (txt) => {
-      this.socket.emit('changeRoom', this.props.currentRoom.channelName);
-      // console.log(this.props.currentUser.username,"WHO AM I???? AppContainer line 83")
-      this.socket.emit("getAllLoggedInUsersFromSocket")
-    }); 
-    
-    this.socket.on('onlineToggle ON', email => {
-      console.log("who just logged in",email);
-      this.handleReceive(toggleOnlineUser,email);
-    });
-    
-    this.socket.on('onlineToggle OFF', email => {
-      console.log("who just logged off",email);
-      this.handleReceive(toggleOfflineUser,email);
-    });
-    
     this.socket.on("getAllLoggedInUsersFromSocket", onlineUsersObj => {
       console.log("TRYING TO GET A MESSAGE")
       console.log("online users Obj",onlineUsersObj)
@@ -102,13 +48,48 @@ class AppContainer extends React.Component {
         );
       }
     });
+    this.socket.on('chat message', 
+      incoming => {
+        console.log("CHAT MESSAGE", incoming)
+        this.handleReceive(addMessageFromSocket,{
+          channelName: incoming.channelName,
+          channelID: incoming.channelID,
+          username: incoming.username,
+          text: incoming.text,
+          url: incoming.url,
+        });
+        // console.log("incoming.text",incoming.text);
+        // window.alert("incoming.text",incoming.text);
+      }
+    );
+    this.socket.on('disconnected', txt => this.handleReceive(addMessageFromSocket,{text: txt}) );
+    this.socket.on('onlineToggle ON', email => {
+      console.log("who just logged in",email);
+      this.handleReceive(toggleOnlineUser,email);
+    });
+    this.socket.on('onlineToggle OFF', email => {
+      console.log("who just logged off",email);
+      this.handleReceive(toggleOfflineUser,email);
+    });
+    this.socket.on('someoneJoin', txt => this.handleReceive(addMessageFromSocket,{text: txt}) );
+    this.socket.on("direct message", incoming => {
+      // console.log("trying to get a room", incoming.room);
+      window.alert(incoming.msg)
+      this.socket.emit('changeRoom', incoming.room)
+      this.handleReceive(setCurrentRoom,incoming.room);
+    });
+    this.socket.on('connect', (txt) => {
+      this.socket.emit('changeRoom', this.props.currentRoom.channelName);
+      // console.log(this.props.currentUser.username,"WHO AM I???? AppContainer line 83")
+      this.socket.emit("getAllLoggedInUsersFromSocket")
+    }); 
   }
   
   handleReceive(cb,body) {
     this.props.dispatch(cb(body));
   }
 
-  downloadChannels() {
+  downloadAllChannels() {
     this.currentRoom = this.props.currentRoom.channelName;
     axios.get('/db/channels')
     .then( (res) => {
@@ -202,46 +183,41 @@ class AppContainer extends React.Component {
   } //end of downloadAllRooms
 
   render() {
-    const sidebar = <RightSideBar theSocket={this.socket}/>;
+    const { barOpened, duration, mode, side, size } = this.state;
+    const navIconClassName = [ 'nav-icon' ];
 
-    const sidebarProps = {
-      sidebar: sidebar,
-      docked: this.state.docked,
-      sidebarClassName: 'custom-sidebar-class',
-      open: this.state.open,
-      shadow: true,
-      pullRight: true,
-      transitions: true,
-      onSetOpen: this.onSetOpen,
+    if (barOpened) { navIconClassName.push('open'); }
+
+    const bar = (<div className='side'><RightSideBar theSocket={this.socket} /></div>);
+
+    const sideBarProps = {
+      bar: bar,
+      mode: mode,
+      opened: barOpened,
+      onOpen: this.onOpen.bind(this),
+      onClose: this.onClose.bind(this),
+      side: side
     };
 
     return (
-      <Sidebar {...sidebarProps}>
+      <SideBar {...sideBarProps}>
+        <Nav />
         <div>
-          <p>...</p>
-          <p 
-            onClick={ () => {
-              console.log("this is my current room",this.props.currentRoom);
-              console.log("this is my current user",this.props.currentUser);
-              console.log("the socket",this.socket)
-            }}>ConsoleLog me!
-          </p>
-          <p>...</p> 
-        </div>
-      <Nav />
-        <div>
-          <p onClick={this.toggleUserDock} >
-            <input type="checkbox" checked={this.state.docked} />
-            <label>Show Users</label>
-          </p>
+
+            <div onClick={this.toggleBar.bind(this)}>Show Active Members</div>
+            <input
+              onChange={this.toggleBar.bind(this)}
+              type='checkbox'
+              checked={barOpened} />
+
 
           <table>
             <td><LeftSideBar downloadAllChannels={this.downloadAllChannels} theSocket={this.socket} /></td>
             <td><PrimaryChatroom theSocket={this.socket} /></td>
-          </table>   
+          </table>          
 
         </div>
-      </Sidebar>
+      </SideBar>
     );
   }
 }
@@ -263,3 +239,79 @@ export default connect(mapStateToProps)(AppContainer);
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// const App = React.createClass({
+//   getInitialState() {
+//     return {
+//       docked: false,
+//       open: false,
+//       transitions: true,
+//       shadow: true,
+//       pullRight: true
+//     };
+//   },
+
+//   onSetOpen(open) {
+//     this.setState({open: open});
+//   },
+
+//   menuButtonClick(ev) {
+//     ev.preventDefault();
+//     this.onSetOpen(!this.state.open);
+//   },
+
+//   renderPropCheckbox(prop) {
+//     const toggleMethod = (ev) => {
+//       const newState = {};
+//       newState[prop] = ev.target.checked;
+//       this.setState(newState);
+//     };
+
+//     return (
+//       <p key={prop}>
+//         <input type="checkbox" onChange={toggleMethod} checked={this.state[prop]} id={prop} />
+//         <label htmlFor={prop}> {prop}</label>
+//       </p>);
+//   },
+
+//   render() {
+//     const sidebar = <RightSideBar />;
+
+//     const sidebarProps = {
+//       sidebar: sidebar,
+//       docked: this.state.docked,
+//       sidebarClassName: 'custom-sidebar-class',
+//       open: this.state.open,
+//       shadow: true,
+//       pullRight: true,
+//       transitions: true,
+//       onSetOpen: this.onSetOpen,
+//     };
+
+//     return (
+//       <Sidebar {...sidebarProps}>
+//         <div>
+//           {['open', 'docked'].map(this.renderPropCheckbox)}
+//         </div>
+//       </Sidebar>
+//     );
+//   },
+// });
+
+// export default App;

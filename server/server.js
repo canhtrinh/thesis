@@ -119,8 +119,8 @@ function(socket){
     // console.log('fromClient: ' + fromClient);
     console.log('user: ' + fromClient.username);
     console.log('chat message: ' + fromClient.msg);
-    console.log('picture: ' + fromClient.picture);
-    console.log("urL: " + fromClient.url);
+    // console.log('picture: ' + fromClient.picture);
+    // console.log("urL: " + fromClient.url);
     console.log("channelName: " + fromClient.channelName)
     console.log("channelID: " + fromClient.channelID)
     // console.log('room name: ' + fromClient.room, currentRoom);
@@ -128,9 +128,8 @@ function(socket){
       channelName: fromClient.channelName,
       channelID: fromClient.channelID,
       username: fromClient.username,
-      text: fromClient.msg,
-      url: fromClient.url,
-      picture: fromClient.picture,
+      text: fromClient.msg
+      // picture: fromClient.picture
     });
   });
 
